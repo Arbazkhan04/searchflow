@@ -28,10 +28,14 @@ app.use(morgan(":method :url :status :response-time ms"));
 
 // Routes
 const userManagementRoutes = require("./routes/userManagementRouter.js");
+const webFlowManagementRoutes = require("./routes/webFlowManagementRouter.js");
+
 
 
 
 app.use("/api/userManagementRoutes", userManagementRoutes);
+app.use("/api/webFlowManagementRoutes", webFlowManagementRoutes);
+
 
 
 
@@ -44,7 +48,7 @@ const start = async () => {
   try {
     await connectDb(process.env.MONGO_URL);
     console.log("Database connected");
-    server.listen(PORT, () => {
+    app.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);
     });
   } catch (err) {

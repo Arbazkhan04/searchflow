@@ -7,10 +7,10 @@ const crypto = require('crypto');
 
 const createUser = async (req, res, next) => {
   try {
-      const { userName, password, email, phone } = req.body;
+      const { userName, password, email, phone, userRole } = req.body;
 
       // Create new user
-      const user = new User({ userName, password, email, phone });
+      const user = new User({ userName, password, email, phone, userRole });
 
       // Generate email verification token
       const verificationCode = user.generateEmailVerificationCode();
