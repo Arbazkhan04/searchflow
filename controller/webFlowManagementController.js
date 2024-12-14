@@ -7,16 +7,26 @@ const qs = require("qs"); // For URL-encoding the request body
 
 const connectWebFlowAccount = async (req, res, next) => {
   try {
-    const userId = req.params.userId; // Assuming userId comes in request params
+    const userId = req.params.userId;
     console.log("user id in connectwebflowaccount", userId);
     const ClientId = process.env.WEBFLOW_CLIENT_ID;
     const redirectURI = process.env.REDIRECT_URI;
 
-    // Encode userId in the state parameter
-    const state = encodeURIComponent(JSON.stringify({ userId }));
-    console.log("state at first place", state);
-    const url = `https://webflow.com/oauth/authorize?client_id=${ClientId}&response_type=code&redirect_uri=${redirectURI}&state=${state}`;
-    res.redirect(302, url);
+    const findUser = await User.findById(userId);
+    //If the user already don't have webflow access token then proceed with webflow oauth process othewise redirect user to user dashboard
+
+    if (!findUser?.webflowAccessToken) {
+      // Encode userId in the state parameter
+      const state = encodeURIComponent(JSON.stringify({ userId }));
+      // const url = `https://webflow.com/oauth/authorize?client_id=${ClientId}&response_type=code&redirect_uri=${redirectURI}&state=${state}`;
+
+      const url = `https://webflow.com/oauth/authorize?client_id=${ClientId}&response_type=code&redirect_uri=${redirectURI}&state=${state}&scope=sites:read`;
+
+      console.log("state at first place", state);
+      return res.redirect(302, url);
+    }
+
+    return res.redirect(302, process.env.USERDASHBOARD_URL);
   } catch (error) {
     next(
       error instanceof CustomError ? error : new CustomError(error.message, 500)

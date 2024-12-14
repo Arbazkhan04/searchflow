@@ -3,6 +3,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const { type } = require("os");
+const CustomError = require("../utils/customError");
 
 const UserSchema = new mongoose.Schema({
   userName: {
@@ -35,6 +36,12 @@ const UserSchema = new mongoose.Schema({
   },
 
   webflowAccessToken: { type: String },
+  connectedSites: [
+    {
+      type: mongoose.Schema.Types.ObjectId, // Reference to the "Sites" collection
+      ref: "Site", // Name of the model to reference
+    },
+  ],
 
   createdAt: {
     type: Date,
@@ -61,6 +68,54 @@ UserSchema.pre("save", async function (next) {
   }
   next();
 });
+
+//**START** verify that the siteId going to save in connectedSites field is valid(exist in sites collection)
+
+UserSchema.pre("save", async function (next) {
+  try {
+    if (this.isModified("connectedSites")) {
+      // Get the current connectedSites
+      const currentSites = this.connectedSites;
+
+      // Check if the document is new
+      if (this.isNew) {
+        // For new documents, validate all IDs in connectedSites
+        for (const siteId of currentSites) {
+          const siteExists = await mongoose.model("Site").findById(siteId);
+          if (!siteExists) {
+            // Use structured error for the error handler
+            next(new CustomError(`Site with ID ${siteId} does not exist.`,400))
+          }
+        }
+      } else {
+        // For existing documents, validate only newly added IDs
+        const originalDoc = await this.constructor.findById(this._id);
+        const originalSites = originalDoc.connectedSites;
+
+        // Find the new site IDs
+        const newSiteIds = currentSites.filter(
+          (siteId) => !originalSites.includes(siteId)
+        );
+
+        for (const siteId of newSiteIds) {
+          const siteExists = await mongoose.model("Site").findById(siteId);
+          if (!siteExists) {
+            next(new CustomError(`Site with ID ${siteId} does not exist.`,400))
+          }
+        }
+      }
+    }
+
+    next(); // No error, proceed
+  } catch (err) {
+    next(error instanceof CustomError ? error : new CustomError(error.message, 500));
+
+  }
+});
+//**END** verify that the siteId going to save in connectedSites field is valid(exist in sites collection)
+
+
+
 
 UserSchema.methods.createJWT = function () {
   return jwt.sign(

@@ -29,12 +29,15 @@ app.use(morgan(":method :url :status :response-time ms"));
 // Routes
 const userManagementRoutes = require("./routes/userManagementRouter.js");
 const webFlowManagementRoutes = require("./routes/webFlowManagementRouter.js");
+const webFlowSitesManagementController = require("./routes/webFlowSitesManagementRouter.js")
 
 
 
 
 app.use("/api/userManagementRoutes", userManagementRoutes);
 app.use("/api/webFlowManagementRoutes", webFlowManagementRoutes);
+app.use("/api/webFlowSitesManagementRoutes", webFlowSitesManagementController);
+
 
 
 
