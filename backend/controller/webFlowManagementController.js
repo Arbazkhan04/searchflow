@@ -20,7 +20,10 @@ const connectWebFlowAccount = async (req, res, next) => {
       const state = encodeURIComponent(JSON.stringify({ userId }));
       // const url = `https://webflow.com/oauth/authorize?client_id=${ClientId}&response_type=code&redirect_uri=${redirectURI}&state=${state}`;
 
-      const url = `https://webflow.com/oauth/authorize?client_id=${ClientId}&response_type=code&redirect_uri=${redirectURI}&state=${state}&scope=sites:read`;
+      // const url = `https://webflow.com/oauth/authorize?client_id=${ClientId}&response_type=code&redirect_uri=${redirectURI}&state=${state}&scope=sites:read`;
+      // const url = `https://webflow.com/oauth/authorize?client_id=${ClientId}&response_type=code&redirect_uri=${redirectURI}&state=${state}&scope=${encodeURIComponent('sites:read cms:read')}`;
+      // const url = `https://webflow.com/oauth/authorize?client_id=${ClientId}&response_type=code&redirect_uri=${redirectURI}&state=${state}&scope=${encodeURIComponent('sites:read cms:read ecommerce:read')}`;
+      const url = `https://webflow.com/oauth/authorize?client_id=${ClientId}&response_type=code&redirect_uri=${redirectURI}&state=${state}&scope=${encodeURIComponent('sites:read cms:read ecommerce:read pages:read')}`;
 
       console.log("state at first place", state);
       return res.redirect(302, url);

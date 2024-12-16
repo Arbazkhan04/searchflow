@@ -3,53 +3,67 @@ const CustomError = require("../utils/customError");
 
 const CollectionSchema = new mongoose.Schema(
   {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId, // Reference to the User who owns the collection
+      ref: "User",
+      required: true,
+    },
+    webflowsiteId: {
+      type: String, // Webflow's collection ID
+      required: true,
+    },
     webflowCollectionId: {
-      type: String, // ID provided by Webflow for this collection
+      type: String, // Webflow's collection ID
       required: true,
       unique: true,
     },
-    siteId: {
-      type: mongoose.Schema.Types.ObjectId, // Reference to the Site model
-      ref: "Site",
+    displayName: {
+      type: String, // Display name of the collection
       required: true,
     },
-    name: {
-      type: String, // Name of the collection (e.g., Blog Posts)
+    singularName: {
+      type: String, // Singular name of the collection
       required: true,
     },
     slug: {
-      type: String, // Webflow slug for the collection
+      type: String, // Slug of the collection
       required: true,
     },
-    fields: [
+    createdOn: {
+      type: Date, // Creation date of the collection
+    },
+    lastUpdated: {
+      type: Date, // Last updated date of the collection
+    },
+    liveItems: [
       {
-        fieldName: { type: String, required: true }, // Field name (e.g., title, content)
-        fieldType: { type: String, required: true }, // Field type (e.g., string, rich-text)
+        type: String, // IDs of live items in the collection
       },
     ],
-    items: [
+    stagedItems: [
       {
-        type: mongoose.Schema.Types.ObjectId, // References to Item model
-        ref: "Item",
+        type: String, // IDs of staged items in the collection
       },
     ],
   },
   {
-    timestamps: true, // Automatically manage `createdAt` and `updatedAt`
+    timestamps: true, // Automatically manage createdAt and updatedAt fields
   }
 );
 
-// Middleware to validate the siteId exists
-CollectionSchema.pre("save", async function (next) {
-  try {
-    const siteExists = await mongoose.model("Site").findById(this.siteId);
-    if (!siteExists) {
-      next(new CustomError(`Site with ID ${this.siteId} does not exist.`, 400));
-    }
-    next(); // No errors, proceed
-  } catch (error) {
-    next(error instanceof CustomError ? error : new CustomError(error.message, 500));
-  }
-});
+// // Middleware to validate that the `siteId` exists before saving
+// CollectionSchema.pre("save", async function (next) {
+//   try {
+//     if (this.isModified("siteId")) {
+//       const siteExists = await mongoose.model("Site").findById(this.siteId);
+//       if (!siteExists) {
+//         return next(new CustomError(`Site with ID ${this.siteId} does not exist.`, 400));
+//       }
+//     }
+//     next();
+//   } catch (error) {
+//     next(error instanceof CustomError ? error : new CustomError(error.message, 500));
+//   }
+// });
 
 module.exports = mongoose.model("Collection", CollectionSchema);

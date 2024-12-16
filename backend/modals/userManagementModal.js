@@ -6,11 +6,11 @@ const { type } = require("os");
 const CustomError = require("../utils/customError");
 
 const UserSchema = new mongoose.Schema({
-  userName: {
-    type: String,
-    required: true,
-    unique: true,
-  },
+  // userName: {
+  //   type: String,
+  //   required: true,
+  //   unique: true,
+  // },
   password: {
     type: String,
     required: true,
@@ -20,11 +20,11 @@ const UserSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
-  phone: {
-    type: String,
-    required: true,
-    unique: true,
-  },
+  // phone: {
+  // //   type: String,
+  // //   required: true,
+  // //   unique: true,
+  // // },
   userRole: {
     type: String,
     enum: ["admin", "user"], // Allowed values

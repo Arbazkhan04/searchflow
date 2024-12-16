@@ -3,35 +3,106 @@ const CustomError = require("../utils/customError");
 
 const ItemSchema = new mongoose.Schema(
   {
-    webflowItemId: {
-      type: String, // ID provided by Webflow for this item
-      required: true,
-      unique: true,
-    },
     collectionId: {
-      type: mongoose.Schema.Types.ObjectId, // Reference to the Collection model
+      type: mongoose.Schema.Types.ObjectId,
       ref: "Collection",
       required: true,
     },
-    fields: {
-      type: Map, // Use Map to store key-value pairs (e.g., title, content)
-      of: String, // Each field value will be stored as a string
+    itemId: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    fieldData: {
+      type: Object,
+      required: true,
+    },
+    cmsLocaleId: {
+      type: String,
+    },
+    lastPublished: {
+      type: Date,
+    },
+    lastUpdated: {
+      type: Date,
+    },
+    createdOn: {
+      type: Date,
+      required: true,
+    },
+    isArchived: {
+      type: Boolean,
+      default: false,
+    },
+    isDraft: {
+      type: Boolean,
+      default: false,
+    },
+    status: {
+      type: String,
+      enum: ["staged", "live"],
+      required: true,
+    },
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    siteId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Site",
       required: true,
     },
   },
   {
-    timestamps: true, // Automatically manage `createdAt` and `updatedAt`
+    timestamps: true,
   }
 );
 
-// Middleware to validate the collectionId exists
+// Middleware to validate referenced fields during save
 ItemSchema.pre("save", async function (next) {
   try {
-    const collectionExists = await mongoose.model("Collection").findById(this.collectionId);
-    if (!collectionExists) {
-      next(new CustomError(`Collection with ID ${this.collectionId} does not exist.`, 400));
+    const referencesToValidate = [
+      { field: "collectionId", model: "Collection" },
+      { field: "siteId", model: "Site" },
+      { field: "userId", model: "User" },
+    ];
+
+    for (const ref of referencesToValidate) {
+      if (this.isModified(ref.field)) {
+        const referenceExists = await mongoose.model(ref.model).findById(this[ref.field]);
+        if (!referenceExists) {
+          return next(new CustomError(`${ref.model} with ID ${this[ref.field]} does not exist.`, 400));
+        }
+      }
     }
-    next(); // No errors, proceed
+
+    next();
+  } catch (error) {
+    next(error instanceof CustomError ? error : new CustomError(error.message, 500));
+  }
+});
+
+// Middleware to validate referenced fields during findOneAndUpdate
+ItemSchema.pre("findOneAndUpdate", async function (next) {
+  try {
+    const update = this.getUpdate(); // Get the update payload
+    const referencesToValidate = [
+      { field: "collectionId", model: "Collection" },
+      { field: "siteId", model: "Site" },
+      { field: "userId", model: "User" },
+    ];
+
+    for (const ref of referencesToValidate) {
+      if (update[ref.field]) {
+        const referenceExists = await mongoose.model(ref.model).findById(update[ref.field]);
+        if (!referenceExists) {
+          return next(new CustomError(`${ref.model} with ID ${update[ref.field]} does not exist.`, 400));
+        }
+      }
+    }
+
+    next();
   } catch (error) {
     next(error instanceof CustomError ? error : new CustomError(error.message, 500));
   }

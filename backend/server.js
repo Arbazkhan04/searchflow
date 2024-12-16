@@ -29,15 +29,22 @@ app.use(morgan(":method :url :status :response-time ms"));
 // Routes
 const userManagementRoutes = require("./routes/userManagementRouter.js");
 const webFlowManagementRoutes = require("./routes/webFlowManagementRouter.js");
-const webFlowSitesManagementController = require("./routes/webFlowSitesManagementRouter.js")
+const webFlowSitesManagementRoutes = require("./routes/webFlowSitesManagementRouter.js")
+const webFlowCollectionManagementRoutes = require("./routes/WFCollectionManagementRouter.js")
+const webFlowLiveItemsManagementRoutes = require("./routes/WFLiveItemsManagementRouter.js")
+const webFlowProductsManagementRoutes = require("./routes/webFlowProductsManagementRouter.js")
+const webFlowPagesManagementRoutes = require("./routes/webflowPagesManagementRouter.js")
 
 
 
 
 app.use("/api/userManagementRoutes", userManagementRoutes);
 app.use("/api/webFlowManagementRoutes", webFlowManagementRoutes);
-app.use("/api/webFlowSitesManagementRoutes", webFlowSitesManagementController);
-
+app.use("/api/webFlowSitesManagementRoutes", webFlowSitesManagementRoutes);
+app.use("/api/webFlowCollectionManagement", webFlowCollectionManagementRoutes);
+app.use("/api/webFlowLiveItemsManagement", webFlowLiveItemsManagementRoutes);
+app.use("/api/webFlowProductsManagement", webFlowProductsManagementRoutes);
+app.use("/api/webFlowPagesManagement", webFlowPagesManagementRoutes);
 
 
 
