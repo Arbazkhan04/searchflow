@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 
-const { createUser, login, forgotPassword, resetPassword, verifyEmailCode, resendVerificationCode } = require('../controller/userManagementController');
+const { createUser, login, forgotPassword, resetPassword, verifyEmailCode, resendVerificationCode,getDashboardData } = require('../controller/userManagementController');
 const { auth, authorizeRoles } = require('../middleware/authentication');
 
 

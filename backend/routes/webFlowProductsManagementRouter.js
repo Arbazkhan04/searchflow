@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 const {
-    fetchProductsFromWebflow
+    fetchProductsFromWebflow,getProductCount
 } = require("../controller/webFLowProductsController");
 
 /**
@@ -11,5 +11,9 @@ const {
  * @queryParam {string} siteId - The ID of the site to fetch products for
  */
 router.get("/fetchUserProductsFromWebFlow/:userId", fetchProductsFromWebflow);
+router.get('/getProductCount/:userId', getProductCount);
+
+
+
 
 module.exports = router;

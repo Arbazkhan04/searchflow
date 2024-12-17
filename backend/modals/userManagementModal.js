@@ -36,12 +36,22 @@ const UserSchema = new mongoose.Schema({
   },
 
   webflowAccessToken: { type: String },
+
   connectedSites: [
     {
       type: mongoose.Schema.Types.ObjectId, // Reference to the "Sites" collection
       ref: "Site", // Name of the model to reference
     },
   ],
+
+  // Track fetched data
+  webflowDataFetchedAndSaved: {
+    sites: { type: Boolean, default: false },
+    collections: { type: Boolean, default: false },
+    items: { type: Boolean, default: false },
+    pages: { type: Boolean, default: false },
+    products: { type: Boolean, default: false },
+  },
 
   createdAt: {
     type: Date,
@@ -84,7 +94,9 @@ UserSchema.pre("save", async function (next) {
           const siteExists = await mongoose.model("Site").findById(siteId);
           if (!siteExists) {
             // Use structured error for the error handler
-            next(new CustomError(`Site with ID ${siteId} does not exist.`,400))
+            next(
+              new CustomError(`Site with ID ${siteId} does not exist.`, 400)
+            );
           }
         }
       } else {
@@ -100,7 +112,9 @@ UserSchema.pre("save", async function (next) {
         for (const siteId of newSiteIds) {
           const siteExists = await mongoose.model("Site").findById(siteId);
           if (!siteExists) {
-            next(new CustomError(`Site with ID ${siteId} does not exist.`,400))
+            next(
+              new CustomError(`Site with ID ${siteId} does not exist.`, 400)
+            );
           }
         }
       }
@@ -108,14 +122,12 @@ UserSchema.pre("save", async function (next) {
 
     next(); // No error, proceed
   } catch (err) {
-    next(error instanceof CustomError ? error : new CustomError(error.message, 500));
-
+    next(
+      error instanceof CustomError ? error : new CustomError(error.message, 500)
+    );
   }
 });
 //**END** verify that the siteId going to save in connectedSites field is valid(exist in sites collection)
-
-
-
 
 UserSchema.methods.createJWT = function () {
   return jwt.sign(

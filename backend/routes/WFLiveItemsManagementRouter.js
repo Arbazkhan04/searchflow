@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 const {
-  fetchItemsFromWebflow,
+  fetchItemsFromWebflow, getItemCount
 } = require("../controller/webflowCollectionItemsController");
 
 /**
@@ -11,5 +11,7 @@ const {
  * @queryParam {string} collectionId - The ID of the collection to fetch items for
  */
 router.get("/fetchLiveItems/:userId", fetchItemsFromWebflow);
+router.get('/getItemsCount/:userId', getItemCount);
+
 
 module.exports = router;

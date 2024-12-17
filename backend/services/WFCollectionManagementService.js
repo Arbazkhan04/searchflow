@@ -98,4 +98,27 @@ const saveWebflowCollections = async (userId, siteId, collections) => {
   }
 };
 
-module.exports = { fetchAndSaveUserCollections };
+
+/**
+ * Count documents in the Collection model based on filter parameters
+ * @param {Object} filter - Filter object to match documents (e.g., { userId, webflowsiteId })
+ * @returns {Promise<number>} - Returns the count of matching documents
+ */
+const countCollectionDocuments = async (filter) => {
+  try {
+    if (!filter || typeof filter !== "object") {
+      throw new CustomError("Filter must be a valid object", 400);
+    }
+
+    const count = await Collection.countDocuments(filter);
+    return count;
+  } catch (error) {
+    console.error("Error in countCollectionDocuments Service:", error.message);
+    throw new CustomError(
+      error.message || "Failed to count documents in collection",
+      500
+    );
+  }
+};
+
+module.exports = { fetchAndSaveUserCollections ,countCollectionDocuments};
